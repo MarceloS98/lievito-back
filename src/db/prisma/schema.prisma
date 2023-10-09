@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  product_id     Int       @id @default(autoincrement())
+  name           String    @unique @db.VarChar(80)
+  description    String?
+  price          Int       @default(0)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @default(now()) @updatedAt
+  deleted_at     DateTime?
+  deleted_status Boolean   @default(false)
+
+  ProductIngredient   ProductIngredient[]
+  ProductPresentation ProductPresentation[]
+  ProductStock        ProductStock[]
+}
+
+model Presentation {
+  // create a not null column
+
+  presentation_id Int       @id @default(autoincrement())
+  name            String    @db.VarChar(80)
+  size_gr         Float     @default(0)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @default(now()) @updatedAt
+  deleted_at      DateTime?
+  deleted_status  Boolean   @default(false)
+
+  ProductPresentation ProductPresentation[]
+  ProductStock        ProductStock[]
+}
+
+model Ingredient {
+  ingredient_id  Int       @id @default(autoincrement())
+  name           String
+  description    String?
+  price_kg       Int       @default(0)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @default(now()) @updatedAt
+  deleted_at     DateTime?
+  deleted_status Boolean   @default(false)
+
+  ProductIngredient ProductIngredient[]
+  IngredientStock   IngredientStock[]
+}
+
+model ProductIngredient {
+  product_ingredient_id Int        @id @default(autoincrement())
+  product_id            Int
+  ingredient_id         Int
+  quantity              Float
+  product               Product    @relation(fields: [product_id], references: [product_id])
+  ingredient            Ingredient @relation(fields: [ingredient_id], references: [ingredient_id])
+}
+
+model ProductPresentation {
+  product_presentation_id Int          @id @default(autoincrement())
+  product_id              Int
+  presentation_id         Int
+  product                 Product      @relation(fields: [product_id], references: [product_id])
+  presentation            Presentation @relation(fields: [presentation_id], references: [presentation_id])
+}
+
+model ProductStock {
+  product_stock_id Int       @id @default(autoincrement())
+  product_id       Int
+  presentation_id  Int
+  quantity         Int       @default(0)
+  fabrication_date DateTime
+  expiration_date  DateTime?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @default(now()) @updatedAt
+  deleted_at       DateTime?
+  deleted_status   Boolean   @default(false)
+
+  product          Product            @relation(fields: [product_id], references: [product_id])
+  presentation     Presentation       @relation(fields: [presentation_id], references: [presentation_id])
+  OutgoingProducts OutgoingProducts[]
+}
+
+model OutgoingProducts {
+  outgoing_products_id Int          @id @default(autoincrement())
+  product_stock_id     Int
+  quantity             Int          @default(0)
+  concept              String?
+  outgoing_date        DateTime
+  created_at           DateTime     @default(now())
+  product_stock        ProductStock @relation(fields: [product_stock_id], references: [product_stock_id])
+}
+
+model IngredientStock {
+  ingredient_stock_id Int       @id @default(autoincrement())
+  ingredient_id       Int
+  quantity_kg         Float     @default(0)
+  expiration_date     DateTime?
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @default(now()) @updatedAt
+  deleted_at          DateTime?
+  deleted_status      Boolean   @default(false)
+
+  ingredient         Ingredient           @relation(fields: [ingredient_id], references: [ingredient_id])
+  OutgoingIngredient OutgoingIngredient[]
+}
+
+model OutgoingIngredient {
+  outgoing_ingredient_id Int             @id @default(autoincrement())
+  ingredient_stock_id    Int
+  outgoing_date          DateTime
+  quantity               Float
+  concept                String?
+  created_at             DateTime        @default(now())
+  ingredient_stock       IngredientStock @relation(fields: [ingredient_stock_id], references: [ingredient_stock_id])
+}
