@@ -1,11 +1,7 @@
 import prisma from "../db/config/prisma.config";
+import { Ingredient } from "../types";
 
-// Get all ingredients
-// Create a new ingredient
-// Update an ingredient
-// Delete an ingredient
-
-export const getAllIngredients = async () => {
+export const getIngredients = async () => {
   try {
     const ingredients = await prisma.ingredient.findMany();
     return ingredients;
@@ -14,7 +10,7 @@ export const getAllIngredients = async () => {
   }
 };
 
-export const createIngredient = async (ingredient) => {
+export const createIngredient = async (ingredient: Ingredient) => {
   try {
     const newIngredient = await prisma.ingredient.create({
       data: {
@@ -27,7 +23,10 @@ export const createIngredient = async (ingredient) => {
   }
 };
 
-export const updateIngredient = async (ingredient_id, ingredient) => {
+export const updateIngredient = async (
+  ingredient_id: number,
+  ingredient: Ingredient
+) => {
   try {
     const updatedIngredient = await prisma.ingredient.update({
       where: {
@@ -43,7 +42,7 @@ export const updateIngredient = async (ingredient_id, ingredient) => {
   }
 };
 
-export const deleteIngredient = async (ingredient_id) => {
+export const deleteIngredient = async (ingredient_id: number) => {
   try {
     const deletedIngredient = await prisma.ingredient.delete({
       where: {
