@@ -1,14 +1,20 @@
-import express, { Request, Response, Application } from "express";
+import express from "express";
+
 import dotenv from "dotenv";
+import routerApi from "./routes/index";
 
 dotenv.config();
 
-const app: Application = express();
-const port = process.env.PORT || 8000;
+const app = express();
+const port = process.env.PORT || 3000;
 
-app.get("/", (req: Request, res: Response) => {
+app.use(express.json());
+
+app.get("/", (req, res) => {
   res.send("Welcome to Express & TypeScript Server");
 });
+
+routerApi(app);
 
 app.listen(port, () => {
   console.log(`Server is Fire at http://localhost:${port}`);
