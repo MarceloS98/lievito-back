@@ -8,14 +8,12 @@ datasource db {
 }
 
 model Product {
-  product_id     Int       @id @default(autoincrement())
-  name           String    @unique @db.VarChar(80)
-  description    String?
-  price          Int       @default(0)
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @default(now()) @updatedAt
-  deleted_at     DateTime?
-  deleted_status Boolean   @default(false)
+  product_id  Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(80)
+  description String?
+  price       Int      @default(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
   ProductIngredient   ProductIngredient[]
   ProductPresentation ProductPresentation[]
@@ -23,48 +21,14 @@ model Product {
 }
 
 model Presentation {
-
-  presentation_id Int       @id @default(autoincrement())
-  name            String    @db.VarChar(80)
-  size_gr         Float     @default(0)
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @default(now()) @updatedAt
-  deleted_at      DateTime?
-  deleted_status  Boolean   @default(false)
+  presentation_id Int      @id @default(autoincrement())
+  name            String   @db.VarChar(80)
+  size_gr         Float    @default(0)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   ProductPresentation ProductPresentation[]
   ProductStock        ProductStock[]
-}
-
-model Ingredient {
-  ingredient_id  Int       @id @default(autoincrement())
-  name           String
-  description    String?
-  price_kg       Int       @default(0)
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @default(now()) @updatedAt
-  deleted_at     DateTime?
-  deleted_status Boolean   @default(false)
-
-  ProductIngredient ProductIngredient[]
-  IngredientStock   IngredientStock[]
-}
-
-model ProductIngredient {
-  product_ingredient_id Int        @id @default(autoincrement())
-  product_id            Int
-  ingredient_id         Int
-  quantity              Float
-  product               Product    @relation(fields: [product_id], references: [product_id])
-  ingredient            Ingredient @relation(fields: [ingredient_id], references: [ingredient_id])
-}
-
-model ProductPresentation {
-  product_presentation_id Int          @id @default(autoincrement())
-  product_id              Int
-  presentation_id         Int
-  product                 Product      @relation(fields: [product_id], references: [product_id])
-  presentation            Presentation @relation(fields: [presentation_id], references: [presentation_id])
 }
 
 model ProductStock {
@@ -75,9 +39,7 @@ model ProductStock {
   fabrication_date DateTime
   expiration_date  DateTime?
   created_at       DateTime  @default(now())
-  updated_at       DateTime  @default(now()) @updatedAt
-  deleted_at       DateTime?
-  deleted_status   Boolean   @default(false)
+  updated_at       DateTime  @updatedAt
 
   product          Product            @relation(fields: [product_id], references: [product_id])
   presentation     Presentation       @relation(fields: [presentation_id], references: [presentation_id])
@@ -85,35 +47,69 @@ model ProductStock {
 }
 
 model OutgoingProducts {
-  outgoing_products_id Int          @id @default(autoincrement())
-  product_stock_id     Int
-  quantity             Int          @default(0)
+  outgoing_products_id Int      @id @default(autoincrement())
+  quantity             Int      @default(0)
   concept              String?
   outgoing_date        DateTime
-  created_at           DateTime     @default(now())
-  product_stock        ProductStock @relation(fields: [product_stock_id], references: [product_stock_id])
+  created_at           DateTime @default(now())
+
+  product_stock    ProductStock @relation(fields: [product_stock_id], references: [product_stock_id])
+  product_stock_id Int
+}
+
+model Ingredient {
+  ingredient_id Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  price_kg      Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  is_deleted    Boolean  @default(false)
+
+  ProductIngredient ProductIngredient[]
+  IngredientStock   IngredientStock[]
 }
 
 model IngredientStock {
   ingredient_stock_id Int       @id @default(autoincrement())
-  ingredient_id       Int
   quantity_kg         Float     @default(0)
   expiration_date     DateTime?
   created_at          DateTime  @default(now())
-  updated_at          DateTime  @default(now()) @updatedAt
-  deleted_at          DateTime?
-  deleted_status      Boolean   @default(false)
+  updated_at          DateTime  @updatedAt
+  is_deleted          Boolean   @default(false)
 
-  ingredient         Ingredient           @relation(fields: [ingredient_id], references: [ingredient_id])
-  OutgoingIngredient OutgoingIngredient[]
+  outGoingIngredient OutgoingIngredient[]
+
+  ingredient    Ingredient @relation(fields: [ingredient_id], references: [ingredient_id], onUpdate: Cascade)
+  ingredient_id Int
 }
 
 model OutgoingIngredient {
-  outgoing_ingredient_id Int             @id @default(autoincrement())
-  ingredient_stock_id    Int
+  outgoing_ingredient_id Int      @id @default(autoincrement())
   outgoing_date          DateTime
   quantity               Float
   concept                String?
-  created_at             DateTime        @default(now())
-  ingredient_stock       IngredientStock @relation(fields: [ingredient_stock_id], references: [ingredient_stock_id])
+  created_at             DateTime @default(now())
+
+  ingredient_stock    IngredientStock @relation(fields: [ingredient_stock_id], references: [ingredient_stock_id])
+  ingredient_stock_id Int
+}
+
+model ProductIngredient {
+  product_ingredient_id Int   @id @default(autoincrement())
+  quantity              Float
+
+  product    Product @relation(fields: [product_id], references: [product_id])
+  product_id Int
+
+  ingredient    Ingredient @relation(fields: [ingredient_id], references: [ingredient_id])
+  ingredient_id Int
+}
+
+model ProductPresentation {
+  product_presentation_id Int          @id @default(autoincrement())
+  product_id              Int
+  presentation_id         Int
+  product                 Product      @relation(fields: [product_id], references: [product_id])
+  presentation            Presentation @relation(fields: [presentation_id], references: [presentation_id])
 }
