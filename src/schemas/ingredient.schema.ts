@@ -1,12 +1,12 @@
 import Joi from "joi";
 
-const id = Joi.number().integer();
+const ingredient_id = Joi.number().integer();
 const name = Joi.string().min(3).max(30);
 const description = Joi.string().min(3).max(255);
 const price_kg = Joi.number().integer();
 
 const getIngredientSchema = Joi.object({
-  id: id.required(),
+  ingredient_id: ingredient_id.required(),
 });
 
 const createIngredientSchema = Joi.object({
@@ -22,7 +22,7 @@ const updateIngredientSchema = Joi.object({
 });
 
 const deleteIngredientSchema = Joi.object({
-  id: id.required(),
+  ingredient_id: ingredient_id.required(),
 });
 
 export {
