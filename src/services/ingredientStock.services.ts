@@ -1,13 +1,41 @@
 import prisma from "../db/config/prisma.config";
 import { IngredientStock } from "../types";
 
-export const getIngredientStock = async () => {
-  const ingredientStock = await prisma.ingredientStock.findMany({
-    include: {
-      ingredient: true,
+export const getIngredientStock = async (page: number, limit = 5) => {
+  const count = await prisma.ingredientStock.count({
+    where: {
+      is_deleted: false,
     },
   });
-  return ingredientStock;
+
+  const ingredientStock = await prisma.ingredientStock.findMany({
+    where: {
+      is_deleted: false,
+    },
+    orderBy: {
+      updated_at: "desc",
+    },
+    select: {
+      ingredient_stock_id: true,
+      ingredient: {
+        select: {
+          ingredient_id: true,
+          name: true,
+          description: true,
+          price_kg: true,
+        },
+      },
+      quantity_kg: true,
+      expiration_date: true,
+      created_at: true,
+    },
+    take: limit,
+    skip: (page - 1) * limit,
+  });
+
+  const totalPages = Math.ceil(count / limit);
+
+  return { ingredientStock, totalPages };
 };
 
 export const getIngredientStockById = async (ingredient_stock_id: number) => {
@@ -21,7 +49,7 @@ export const getIngredientStockById = async (ingredient_stock_id: number) => {
   });
 
   if (!ingredientStock) {
-    throw new Error("Ingredient Stock not found");
+    throw new Error("Stock not found");
   }
 
   return ingredientStock;

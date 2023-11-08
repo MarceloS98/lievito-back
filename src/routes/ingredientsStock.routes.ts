@@ -1,10 +1,10 @@
 import { Router } from "express";
 import {
   createIngredientStock,
+  deleteIngredientStock,
   getIngredientStock,
   getIngredientStockById,
   updateIngredientStock,
-  deleteIngredientStock,
 } from "../services/ingredientStock.services";
 import validatorHandler from "../middlewares/validationHandler";
 import {
@@ -18,8 +18,11 @@ const router = Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    const ingredientStock = await getIngredientStock();
-    res.json(ingredientStock);
+    const { page } = req.query;
+    const { ingredientStock, totalPages } = await getIngredientStock(
+      Number(page)
+    );
+    res.json({ ingredientStock, totalPages });
   } catch (error) {
     next(error);
   }
@@ -36,7 +39,7 @@ router.get(
 
       if (!ingredientStock) {
         return res.status(404).json({
-          message: "Ingredient Stock not found",
+          message: "Stock not found",
         });
       }
 

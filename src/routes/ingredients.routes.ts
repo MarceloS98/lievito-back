@@ -18,8 +18,13 @@ const router = Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    const ingredients = await getIngredients();
-    res.json(ingredients);
+    const { page, all } = req.query;
+
+    const { ingredients, totalPages } = await getIngredients({
+      page: Number(page),
+      all: Boolean(all),
+    });
+    res.json({ ingredients, totalPages });
   } catch (error) {
     next(error);
   }

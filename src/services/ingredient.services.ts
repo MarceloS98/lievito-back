@@ -1,9 +1,55 @@
 import prisma from "../db/config/prisma.config";
 import { Ingredient, IngredientPayload } from "../types";
 
-export const getIngredients = async () => {
-  const ingredients = await prisma.ingredient.findMany();
-  return ingredients;
+export const getIngredients = async ({ page = 1, limit = 5, all = false }) => {
+  const count = await prisma.ingredient.count({
+    where: {
+      is_deleted: false,
+    },
+  });
+
+  let ingredients;
+
+  if (all) {
+    ingredients = await prisma.ingredient.findMany({
+      where: {
+        is_deleted: false,
+      },
+      orderBy: {
+        updated_at: "desc",
+      },
+      select: {
+        ingredient_id: true,
+        name: true,
+        description: true,
+        price_kg: true,
+      },
+    });
+  } else {
+    ingredients = await prisma.ingredient.findMany({
+      where: {
+        is_deleted: false,
+      },
+      orderBy: {
+        updated_at: "desc",
+      },
+      select: {
+        ingredient_id: true,
+        name: true,
+        description: true,
+        price_kg: true,
+      },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+  }
+
+  const totalPages = Math.ceil(count / limit);
+
+  return {
+    ingredients,
+    totalPages,
+  };
 };
 
 export const getIngredient = async (ingredient_id: number) => {
